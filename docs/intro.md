@@ -24,7 +24,15 @@ The command also installs all necessary dependencies you need to run Jakeloud.
 
 Go to your server's ip address and input domain for jakeloud admin panel along with admin email (this email should be able to receive letters).
 
+![setup domain](/img/jakeloud-domain.png)
+
 ### Register admin user
 
 In order to register, you have to setup ssl (so that password can be transmitted safely).
 It is important to use the same email you used for domain configuration for admin user.
+
+![register admin](/img/register-admin.png)
+
+In the end you will have admin panel like this:
+
+![admin panel](/img/empty-jakeloud.png)
