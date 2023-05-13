@@ -1,7 +1,12 @@
+FROM node
+
+COPY . .
+RUN npm i && npm run build
+
 FROM nginx
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY static /usr/share/nginx/html
+COPY --from=0 build /usr/share/nginx/html
 
 RUN apt-get update && apt-get install -y openssh-server git \
   && mkdir /var/run/sshd \
