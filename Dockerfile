@@ -1,7 +1,8 @@
 FROM node
 
 COPY . .
-RUN npm i && npm run build
+RUN npm i
+RUN npm run build
 
 FROM nginx
 
