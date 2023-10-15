@@ -64,7 +64,7 @@ const config = {
             label: 'Tutorial',
           },
           {
-            href: 'https://github.com/notTGY/jakeloud',
+            href: 'https://github.com/jakeloud/jakeloud',
             label: 'GitHub',
             position: 'right',
           },
@@ -87,7 +87,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/notTGY/jakeloud',
+                href: 'https://github.com/jakeloud/jakeloud',
               },
             ],
           },
