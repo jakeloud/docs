@@ -3,7 +3,7 @@
 ## Why this is experimental
 
 Jakeloud is ment to be mainly used for production.
-Multiple users means less opacity and less stability.
+Having multiple users means less opacity and less stability.
 It is always easier to consider one person an admin and solely rely on him.
 
 However, at some point in time, you may want to add collaborators to your project as it grows.
