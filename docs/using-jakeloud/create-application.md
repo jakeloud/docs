@@ -6,7 +6,7 @@ sidebar_position: 2
 
 Follow this simple process to deploy an app to the production.
 
-First make sure, that you have set up your git user.
+First make sure, that you have set up your ssh key.
 
 ## Click add app button
 
@@ -17,11 +17,10 @@ To start click <button class="button button--primary">add app</button> button in
 
 ## Input all information about an app
 
-**Name* **: name of docker container running your app. Should be unique.
+**Name* **: name of docker container running your app. Should be unique, and not `jakeloud` (it is reserved).
 *Docker container name rules apply*.  
-**Domain* **: domain of your app.  
-**vcs* **: select vcs, that has the repo of the app, from the dropdown.  
-**repo* **: repo of the app. In the format of `<user|org>/repo`.  
+**Domain* **: domain of your app. 
+**repo* **: repo of the app. In the format of `git@github.com:<user>/<repo>.git`.  
 **docker options**: this field is not required. You can input any `docker run` options.  
 For example: `-v /home/jakeloud:/home/jakeloud -e PASSWORD=jakeloud`
 

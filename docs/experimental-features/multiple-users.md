@@ -12,7 +12,7 @@ However, at some point in time, you may want to add collaborators to your projec
 
 Tick checkbox `Registration allowed` in Jakeloud app settings.
 
-![admin panel](/img/empty-jakeloud.png)
+![settings panel](/img/settings-panel.png)
 
 :::danger
 
@@ -24,7 +24,4 @@ This will allow anyone to register. So make sure to switch it back, once you're 
 
 Owner of the Jakeloud app is the admin. Only admin can change global settings of Jakeloud.
 
-All other users have isolated access to the Jakeloud.
-So you won't be able to see their projects and they can't see your own projects.
-
-Despite this, they can technically delete or replace running projects by creating apps with the same name.
+All users have access to all projects, can delete them, update and create new ones.
