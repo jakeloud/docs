@@ -4,38 +4,10 @@ import Link from '@docusaurus/Link';
 import Head from '@docusaurus/Head';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
+import HomepageFeatures from '@site/src/components/HomepageFeatures';
 
+import Heading from '@theme/Heading';
 import styles from './index.module.css';
-
-const FeatureList = [
-  {
-    title: 'Easy to Use 🧑‍🚀',
-    description: (
-      <>
-        Jakeloud was designed from the ground up to be easily installed and
-        used to get your websites up and running quickly.
-      </>
-    ),
-  },
-  {
-    title: 'Customize to your needs 🎨',
-    description: (
-      <>
-        Designed with simplicity and flexibility in mind,
-        developers can fully rewrite the app to make it a perfect fit for their use case.
-
-      </>
-    ),
-  },
-  {
-    title: 'Powered by Nginx 🚀',
-    description: (
-      <>
-        Enjoy fast and reliable performance with low latency, thanks to the optimized infrastructure.
-      </>
-    ),
-  },
-];
 
 const ecology = {
   title: 'Ecology 🌱',
@@ -49,17 +21,6 @@ const ecology = {
       Choose JakeLoud for a sustainable, cost-effective, and efficient experience in running your applications.
     </>
   )
-}
-
-function Feature({title, description}) {
-  return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center padding-horiz--md">
-        <h3>{title}</h3>
-        <p>{description}</p>
-      </div>
-    </div>
-  );
 }
 
 function Hero() {
@@ -122,15 +83,7 @@ export default function Home() {
 
       <Hero />
       <main>
-        <section className={styles.features}>
-          <div className="container">
-            <div className="row">
-              {FeatureList.map((props, idx) => (
-                <Feature key={idx} {...props} />
-              ))}
-            </div>
-          </div>
-        </section>
+        <HomepageFeatures />
         <section>
           <div  className={clsx('container', styles.center)}>
             <div className="text--center padding-horiz--md" style={{maxWidth: '60ch'}}>
@@ -143,4 +96,3 @@ export default function Home() {
     </Layout>
   );
 }
-
