@@ -2,46 +2,45 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Jakeloud intro
 
-Let's discover **Docusaurus in less than 5 minutes**.
+Let's discover **Jakeloud in less than 5 minutes**.
 
 ## Getting Started
 
-Get started by **creating a new site**.
+Get started by **creating a new deployment**. You will need sudo rights and `curl` installed.
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
-
-### What you'll need
-
-- [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
-
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
+Login onto your server and run:
 
 ```bash
-npm init docusaurus@latest my-website classic
+sudo sh -c "$(curl --silent -fsSL https://raw.githubusercontent.com/jakeloud/jakeloud/main/install.sh)"
 ```
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+The command also installs all necessary dependencies you need to run Jakeloud.
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+## Finish installation process
 
-## Start your site
+### Configure domain
 
-Run the development server:
+Go to your server's ip address and input domain for jakeloud admin panel along with admin email (this email should be able to receive letters).
 
-```bash
-cd my-website
-npm run start
-```
+![setup domain](/img/jakeloud-domain.png)
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+### Register admin user
 
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
+In order to register, you have to setup ssl (so that password can be transmitted safely).
 
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+:::note Unsure about that
+It is important to use the same email you used for domain configuration for admin user.
+
+:::
+
+![register](/img/register.png)
+
+In case your session expired, you can log in again.
+
+![login](/img/login.png)
+
+In the end you will have admin panel like this:
+
+![admin panel](/img/empty-jakeloud.png)
