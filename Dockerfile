@@ -1,7 +1,7 @@
-FROM oven/bun:alpine
+FROM node
 
 COPY . /app
-RUN cd /app && bun install && bun run build
+RUN cd /app && npm install && npm run build
 
 FROM nginx
 
