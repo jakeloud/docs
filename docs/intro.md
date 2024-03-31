@@ -6,6 +6,16 @@ sidebar_position: 1
 
 Let's discover **Jakeloud in less than 5 minutes**.
 
+## System requirements
+
+OS: Debian 11+ / Ubuntu 20+
+
+RAM: 0.5 GB
+
+Disk space: 1.6 GB
+(all required packages and runtime)
+
+
 ## Getting Started
 
 Get started by **creating a new deployment**. You will need sudo rights and `curl` installed.
