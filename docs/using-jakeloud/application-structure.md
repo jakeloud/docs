@@ -35,6 +35,6 @@ Here I am using nginx to serve static files. In fact you can use any other serve
 
 :::tip
 
-Checkout [example nginx static server](https://github.com/jakeloud/docker-nginx-static).
+Checkout [example nginx static server](https://github.com/nottgy/docker-nginx-static).
 
 :::
