@@ -23,7 +23,7 @@ Get started by **creating a new deployment**. You will need sudo rights and `cur
 Login onto your server and run:
 
 ```bash
-curl --silent -fsSL https://raw.githubusercontent.com/jakeloud/jakeloud/main/install-all.sh | sh
+curl -fsSL https://jakeloud.com/install-all | sh
 ```
 
 The command also installs all necessary dependencies you need to run Jakeloud.

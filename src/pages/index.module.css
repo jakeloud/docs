@@ -18,13 +18,19 @@
 
 .center {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+  grid-gap: 2rem;
 }
 
 .button {
   white-space: unset;
+}
+
+.code {
+  max-width: 100%;
 }
 
 .features {

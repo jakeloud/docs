@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import Head from '@docusaurus/Head';
+import CodeBlock from '@theme/CodeBlock';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
@@ -22,6 +23,8 @@ const ecology = {
     </>
   )
 }
+
+const installCommand = `curl -fsSL https://jakeloud.com/install-all | sh`
 
 function Hero() {
   const {siteConfig} = useDocusaurusContext();
@@ -58,6 +61,9 @@ function Hero() {
             to="/docs/intro">
             Jakeloud Tutorial - 5min ⏱️
           </Link>
+          <CodeBlock className={styles.code} language="bash">
+            {installCommand}
+          </CodeBlock>
         </div>
       </div>
     </header>
