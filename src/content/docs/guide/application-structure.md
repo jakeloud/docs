@@ -1,8 +1,8 @@
 ---
-sidebar_position: 3
+title: Application structure
+sidebar:
+  order: 4
 ---
-
-# Application structure
 
 You have to prepare your application to be cloud ready.
 
@@ -38,3 +38,4 @@ Here I am using nginx to serve static files. In fact you can use any other serve
 Checkout [example nginx static server](https://github.com/nottgy/docker-nginx-static).
 
 :::
+

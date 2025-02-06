@@ -1,8 +1,6 @@
 ---
-sidebar_position: 3
+title: Experimental features
 ---
-
-# Experimental features
 
 ## Why those features are experimental
 
@@ -12,3 +10,4 @@ As a result I'd like to keep core features of Jakeloud pretty minimal and **bugl
 That's why everything that is not required to run production app is considered experimental for now.
 
 After this disclaimer, you can safely proceed :-)
+

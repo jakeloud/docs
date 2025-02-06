@@ -1,8 +1,11 @@
 ---
-sidebar_position: 1
+title: Add SSH key
+sidebar:
+  order: 2
 ---
 
-# Add SSH key
+
+import { Steps } from '@astrojs/starlight/components'
 
 This is an essential step to run or update apps.
 
@@ -10,19 +13,21 @@ This is an essential step to run or update apps.
 
 To start click <button class="button button--primary">Settings</button> button in admin panel.
 
-![admin panel](/img/empty-jakeloud.png)
+![admin panel](@/assets/empty-jakeloud.png)
 
 You will see something like this.
 
-![settings panel](/img/settings-panel.png)
+![settings panel](@/assets/settings-panel.png)
 
 Copy ssh key or click copy button.
 
 ## Put SSH key into github
 
+<Steps>
 1. Go to [github.com](http://github.com)
 2. Click icon of your user in top left corner
 3. Click `Settings` in the popup menu, that just appeared
 4. Click `SSH and GPG keys` button in the sidebar
 5. Click `New SSH key`
 6. Give it a title, paste key under `Key` and click `Add SSH key`
+</Steps>
