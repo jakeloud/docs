@@ -4,6 +4,11 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+  outDir: '_site',
+  redirects: {
+    '/install-all': 'https://raw.githubusercontent.com/jakeloud/jakeloud/main/install-all.sh',
+    '/install': 'https://raw.githubusercontent.com/jakeloud/jakeloud/main/install.sh',
+  },
   site: 'https://jakeloud.com',
 	integrations: [
 		starlight({
