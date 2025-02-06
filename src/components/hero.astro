@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 
 const PAGE_TITLE_ID = '_top';
 
-import { LinkButton } from '@astrojs/starlight/components'
+import { LinkButton, Code } from '@astrojs/starlight/components'
 
 const { data } = Astro.props.entry;
 const { title = data.title, tagline, image, actions = [] } = data.hero || {};
@@ -15,6 +15,8 @@ const imageAttrs = {
 	height: 400,
 	alt: image?.alt || '',
 };
+
+const installCommand = `curl -fsSL https://jakeloud.com/install-all | sh`
 
 let darkImage: ImageMetadata | undefined;
 let lightImage: ImageMetadata | undefined;
@@ -32,6 +34,25 @@ if (image) {
 ---
 
 <div class="hero">
+  <canvas id="c" class="canvas"/>
+  <script>
+    c.width = 1920
+    c.height = 1080
+    const x = c.getContext`2d`
+    let Z = 0, X = 0, w
+
+    const u=(t)=>{
+      t/=1000
+      const r=_=>x.lineTo(w/2+(X-21)/Z*w-15,2/Z*w)
+      for(let i=w=c.width|=0;i--;r(Z++),r(X--))X=i%40,r(Z=1-t*9%1+i/40)
+        x.strokeStyle='#f0f'
+        x.fillStyle='#0000'
+        x.fillRect(0,0,w,w)
+        x.stroke()
+        requestAnimationFrame(u)
+    }
+    u(0)
+  </script>
 	{
 		darkImage && (
 			<Image
@@ -59,6 +80,11 @@ if (image) {
 							</LinkButton>
 						)
 					)}
+          <Code
+            class="code"
+            language="bash"
+            code={installCommand}
+          />
 				</div>
 			)
 		}
@@ -67,11 +93,32 @@ if (image) {
 
 <style>
 	.hero {
-		display: grid;
+		display: flex;
+    flex-direction: column;
 		align-items: center;
 		gap: 1rem;
 		padding-bottom: 1rem;
+
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 500px;
+
+    padding-top: 4rem;
 	}
+
+  .code {
+    max-width: 100%;
+  }
+
+  .canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
 
 	.hero > img,
 	.hero > .hero-html {
@@ -113,7 +160,11 @@ if (image) {
 		gap: 1rem 2rem;
 		flex-wrap: wrap;
 		justify-content: center;
+    flex-direction: column;
 	}
+  .actions>*{
+    width: max-content;
+  }
 
 	@media (min-width: 50rem) {
 		.hero {
@@ -133,7 +184,6 @@ if (image) {
 		}
 
 		.copy {
-			align-items: flex-start;
 		}
 
 		.actions {
