@@ -47,6 +47,22 @@ Keep the process in the foreground. Avoid `docker run -d`, shell backgrounding w
 
 Commands execute under the Jakeloud service account, which the supplied systemd unit sets to root. Only deploy code and commands you trust on that server.
 
+## More runtime examples
+
+For a Go application whose main package is `./cmd/server` and which reads `PORT`, install Go on the host and use:
+
+```bash
+go build -o server ./cmd/server && exec ./server
+```
+
+For Podman, install it on the host and use a custom command with a Dockerfile serving port 80:
+
+```bash
+podman build -t my-project . && exec podman run --rm -p "$PORT":80 my-project
+```
+
+The dashboard’s **Docker Cache** action still invokes Docker; it does not manage Podman storage.
+
 ## Workers and persistent data
 
 Leave **Enable domain and proxy** unchecked for a long-running worker that does not need an HTTP domain. It still needs a foreground command, but it does not need to listen on `$PORT`.
