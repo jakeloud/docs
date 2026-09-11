@@ -1,30 +1,77 @@
 ---
 title: Jakeloud
-description: self-hosted heroku alternative
+description: Deploy Git repositories on your own server with a web dashboard and coding agents.
 template: splash
 hero:
-  tagline: self-hosted heroku alternative
+  tagline: Your repositories. Your server. Deploy from the dashboard or your agent.
   actions:
-    - text: Jakeloud Tutorial - 5min ⏱️ 
-      link: /guide
+    - text: Install Jakeloud
+      link: /guide/
       icon: right-arrow
+    - text: Connect your agent
+      link: /guide/agents/
+      variant: secondary
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+Jakeloud is a self-hosted deployment tool with a web dashboard. It clones your Git repository, runs your build and start command, and routes web traffic through Nginx with HTTPS certificates managed by Certbot.
 
-<CardGrid stagger>
-	<Card title="Easy to Use 🧑‍🚀">
-    Jakeloud was designed from the ground up to be easily installed and used to get your websites up and running quickly.
-	</Card>
-	<Card title="Customize to your needs 🎨">
-    Designed with simplicity and flexibility in mind, developers can fully rewrite the app to make it a perfect fit for their use case.
-	</Card>
-	<Card title="Powered by Nginx 🚀">
-    Enjoy fast and reliable performance with low latency, thanks to the optimized infrastructure.
-	</Card>
-	<Card title="Ecology 🌱">
-    JakeLoud offers an efficient and optimized platform for running multiple applications on a single server. Utilizing the fast web proxy Nginx, it ensures smooth and quick operation, reducing energy consumption and lowering your carbon footprint. Choose JakeLoud for a sustainable, cost-effective, and efficient experience in running your applications.
-	</Card>
+This documentation covers the new [jakeloud/jl](https://github.com/jakeloud/jl) implementation.
+
+
+## Install on your server
+
+On a fresh Debian-based server with systemd and a public IPv4 address, allow ports **80** and **443**, then run these commands from a download directory:
+
+```bash title="Server setup · Docker + Jakeloud v2.0.0"
+sudo apt-get update &&
+sudo apt-get install -y docker.io curl &&
+sudo systemctl enable --now docker &&
+curl -fL https://github.com/jakeloud/jl/releases/download/v2.0.0/jl -o jl &&
+chmod +x jl &&
+sudo ./jl
+```
+
+Open the HTTPS address printed by the installer and register your account. See the [installation guide](/guide/) for prerequisites and [maintenance guide](/guide/operations/#update-jakeloud) for updates to an existing server.
+
+## Connect your coding agent
+
+Run this on the computer where your agent runs. The installer lets you choose your agent:
+
+```bash title="Install the Jakeloud skill"
+npx skills add jakeloud/skill
+```
+
+For a global installation in both Codex and OpenCode:
+
+```bash title="Install globally for Codex and OpenCode"
+npx skills add jakeloud/skill -g -a codex -a opencode
+```
+
+Restart your agent, then configure the instance URL and credentials in your terminal. See [agent setup](/guide/agents/#configure-your-instance) for the configuration command for your agent.
+
+## Your deployments at a glance
+
+![Jakeloud dashboard showing deployed applications, domains, running status, and Full Reboot controls.](../../assets/jl-dashboard.png)
+
+Dashboard captured from a running Jakeloud instance. This deployed version labels the list **Apps** and the create button **Add App**; current source uses **Add Project**. The guides describe the current source's command and release controls.
+
+## Built for your own server
+
+<CardGrid>
+  <Card title="Deploy a repository">
+    Use the default Docker workflow or supply a command for your own runtime. Jakeloud gives each release its own directory and port.
+  </Card>
+  <Card title="Control when traffic switches">
+    Inspect release logs, confirm that a web app is ready, and switch its domain to the new release. A configurable timeout can switch it automatically.
+  </Card>
+  <Card title="Run web apps and workers">
+    Enable a domain for a public website or leave it off for a background process. Keep your application running in the foreground so Jakeloud can track it.
+  </Card>
+  <Card title="Work with your coding agent">
+    Install the Jakeloud skill to list projects, read status and logs, and request a full reboot from your agent.
+  </Card>
 </CardGrid>
+
+Start with [installation](/guide/), [deploy your first project](/guide/create-application/), or [set up an agent](/guide/agents/).

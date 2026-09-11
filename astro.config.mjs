@@ -6,8 +6,10 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
   outDir: '_site',
   redirects: {
-    '/install-all': 'https://raw.githubusercontent.com/jakeloud/jakeloud/main/install-all.sh',
-    '/install': 'https://raw.githubusercontent.com/jakeloud/jakeloud/main/install.sh',
+    '/install-all': '/guide/',
+    '/install': '/guide/',
+    '/experimental': '/guide/operations/',
+    '/experimental/multiple-users': '/guide/operations/#users-and-access',
   },
   site: 'https://jakeloud.com',
 	integrations: [
@@ -25,17 +27,12 @@ export default defineConfig({
         baseUrl: 'https://github.com/jakeloud/docs/edit/master',
       },
 			social: {
-				github: 'https://github.com/jakeloud/docs',
+				github: 'https://github.com/jakeloud/jl',
 			},
 			sidebar: [
 				{
 					label: 'Guide',
 					autogenerate: { directory: 'guide' },
-				},
-				{
-					label: 'Experimental features',
-          collapsed: true,
-					autogenerate: { directory: 'experimental' },
 				},
 			],
       components: {
