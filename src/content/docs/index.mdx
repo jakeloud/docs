@@ -17,7 +17,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 Jakeloud is a self-hosted deployment tool with a web dashboard. It clones your Git repository, runs your build and start command, and routes web traffic through Nginx with HTTPS certificates managed by Certbot.
 
-This documentation covers the new [jakeloud/jl](https://github.com/jakeloud/jl) implementation.
+The new [jakeloud/jl](https://github.com/jakeloud/jl) gives you custom commands, numbered releases, and control over when traffic moves to a new version—all on your own server. [Explore what the new Jakeloud offers](/guide/why-jakeloud/).
 
 
 ## Install on your server
@@ -68,6 +68,12 @@ Dashboard captured from a running Jakeloud instance. This deployed version label
   </Card>
   <Card title="Run web apps and workers">
     Enable a domain for a public website or leave it off for a background process. Keep your application running in the foreground so Jakeloud can track it.
+  </Card>
+  <Card title="Understand every release">
+    See the assigned port, process ID, candidate or active role, and per-release logs. Optional Telegram notifications report deployment starts and failures.
+  </Card>
+  <Card title="Keep serving during startup">
+    Prepare a web release while the previous process serves traffic. Jakeloud attempts to restore the previous proxy target if a switch fails during proxy or certificate setup.
   </Card>
   <Card title="Work with your coding agent">
     Install the Jakeloud skill to list projects, read status and logs, and request a full reboot from your agent.

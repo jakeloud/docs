@@ -43,6 +43,14 @@ Push your changes to the repository's default branch. Open the project, review t
 
 For a web project, repeat the readiness check and traffic switch. If the new release fails before switching, inspect its logs; do not assume a failed deployment has replaced the previously active release.
 
+## Change a project domain or timeout
+
+Open the settings icon beside the project domain (or **No domain**). Enter the hostname and **Timeout in minutes**, then select **Save and redeploy**. This starts a new deployment, using the command currently selected in the project view. Point the new hostname at your server before switching.
+
+This editor can add a domain to a worker or change an existing hostname and delay. It requires a hostname; disabling the domain is available through the API rather than this editor.
+
+For details on candidate and active processes, retained logs, and failure recovery, see [understand releases](/guide/releases/).
+
 ## Delete a project
 
 Select **Delete Project** and confirm the dialog to stop its releases and remove its project directory and Nginx site files. Back up any data stored in that directory first. Manage external volumes and databases separately.
