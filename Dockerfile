@@ -1,8 +1,8 @@
-FROM node:20.12.0-alpine3.19 AS frontend-stage
+FROM oven/bun:1.2.15-alpine AS frontend-stage
 
 COPY . /app
 WORKDIR /app
-RUN npm i && npm run build
+RUN bun i && bun run build
 
 FROM nginx:stable-alpine3.17-slim
 
