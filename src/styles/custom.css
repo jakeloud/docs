@@ -1,29 +1,82 @@
-/* Dark mode colors. */
+/* Neutral palette from jakeloud/jl's vite-app/src/index.css. */
 :root {
-	--sl-color-accent-low: #460b05;
-	--sl-color-accent: #c60e00;
-	--sl-color-accent-high: #feb3a6;
-	--sl-color-white: #ffffff;
-	--sl-color-gray-1: #f3ecea;
-	--sl-color-gray-2: #cfc6c4;
-	--sl-color-gray-3: #b0a09d;
-	--sl-color-gray-4: #635451;
-	--sl-color-gray-5: #423432;
-	--sl-color-gray-6: #302321;
-	--sl-color-black: #1d1715;
+	--sl-color-accent-low: oklch(0.269 0 0);
+	--sl-color-accent: oklch(0.708 0 0);
+	--sl-color-accent-high: oklch(0.922 0 0);
+	--sl-color-white: oklch(0.985 0 0);
+	--sl-color-gray-1: oklch(0.922 0 0);
+	--sl-color-gray-2: oklch(0.85 0 0);
+	--sl-color-gray-3: oklch(0.708 0 0);
+	--sl-color-gray-4: oklch(0.556 0 0);
+	--sl-color-gray-5: oklch(0.269 0 0);
+	--sl-color-gray-6: oklch(0.205 0 0);
+	--sl-color-black: oklch(0.145 0 0);
+	--jl-card: oklch(0.205 0 0);
+	--jl-border: oklch(1 0 0 / 10%);
+	--jl-primary: oklch(0.922 0 0);
+	--jl-primary-foreground: oklch(0.205 0 0);
+	--jl-muted: oklch(0.269 0 0);
 }
-/* Light mode colors. */
+
 :root[data-theme='light'] {
-	--sl-color-accent-low: #ffc8be;
-	--sl-color-accent: #a60a00;
-	--sl-color-accent-high: #640300;
-	--sl-color-white: #1d1715;
-	--sl-color-gray-1: #302321;
-	--sl-color-gray-2: #423432;
-	--sl-color-gray-3: #635451;
-	--sl-color-gray-4: #978784;
-	--sl-color-gray-5: #c8c0be;
-	--sl-color-gray-6: #f3ecea;
-	--sl-color-gray-7: #f9f5f5;
-	--sl-color-black: #ffffff;
+	--sl-color-accent-low: oklch(0.97 0 0);
+	--sl-color-accent: oklch(0.205 0 0);
+	--sl-color-accent-high: oklch(0.145 0 0);
+	--sl-color-white: oklch(0.145 0 0);
+	--sl-color-gray-1: oklch(0.205 0 0);
+	--sl-color-gray-2: oklch(0.269 0 0);
+	--sl-color-gray-3: oklch(0.556 0 0);
+	--sl-color-gray-4: oklch(0.708 0 0);
+	--sl-color-gray-5: oklch(0.922 0 0);
+	--sl-color-gray-6: oklch(0.97 0 0);
+	--sl-color-gray-7: oklch(0.985 0 0);
+	--sl-color-black: oklch(1 0 0);
+	--jl-card: oklch(1 0 0);
+	--jl-border: oklch(0.922 0 0);
+	--jl-primary: oklch(0.205 0 0);
+	--jl-primary-foreground: oklch(0.985 0 0);
+	--jl-muted: oklch(0.97 0 0);
+}
+
+:root,
+:root[data-theme='light'] {
+	--sl-color-bg-nav: var(--sl-color-bg);
+	--sl-color-bg-sidebar: var(--jl-card);
+	--sl-color-bg-inline-code: var(--jl-muted);
+	--sl-color-hairline: var(--jl-border);
+	--sl-color-hairline-light: var(--jl-border);
+}
+
+.sl-markdown-content .card {
+	background-color: var(--jl-card);
+	border-color: var(--jl-border);
+	border-radius: 0.625rem;
+}
+
+.sl-link-button.primary {
+	background-color: var(--jl-primary);
+	border-color: var(--jl-primary);
+	color: var(--jl-primary-foreground);
+}
+
+.sl-link-button.primary:hover {
+	color: var(--jl-primary-foreground);
+	opacity: 0.9;
+}
+
+.sl-link-button.secondary {
+	background-color: var(--sl-color-bg);
+	border-color: var(--jl-border);
+}
+
+.sl-link-button.secondary:hover {
+	background-color: var(--jl-muted);
+}
+
+/* Frame product screenshots consistently in both themes. */
+.sl-markdown-content img[src*="jl-dashboard"],
+.sl-markdown-content img[src*="jl-ssh-key"],
+.sl-markdown-content img[src*="jl-domain-settings"] {
+	border: 1px solid var(--jl-border);
+	border-radius: 0.625rem;
 }
