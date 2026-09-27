@@ -24,11 +24,11 @@ The new [jakeloud/jl](https://github.com/jakeloud/jl) gives you custom commands,
 
 On a fresh Debian-based server with systemd and a public IPv4 address, allow ports **80** and **443**, then run these commands from a download directory:
 
-```bash title="Server setup · Docker + Jakeloud v2.0.0"
+```bash title="Server setup · Docker + Jakeloud v%JAKELOUD_VERSION%"
 sudo apt-get update &&
 sudo apt-get install -y docker.io curl &&
 sudo systemctl enable --now docker &&
-curl -fL https://github.com/jakeloud/jl/releases/download/v2.0.0/jl -o jl &&
+curl -fL https://github.com/jakeloud/jl/releases/download/v%JAKELOUD_VERSION%/jl -o jl &&
 chmod +x jl &&
 sudo ./jl
 ```

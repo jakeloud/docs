@@ -24,10 +24,10 @@ Size the server for your applications and their builds; a small runtime can stil
 
 ## Install the release binary
 
-Download the `jl` asset from the [release page](https://github.com/jakeloud/jl/releases). The following example uses **v2.0.0**:
+Download the `jl` asset from the [release page](https://github.com/jakeloud/jl/releases). The following example uses **v%JAKELOUD_VERSION%**:
 
 ```bash
-curl -fL https://github.com/jakeloud/jl/releases/download/v2.0.0/jl -o jl
+curl -fL https://github.com/jakeloud/jl/releases/download/v%JAKELOUD_VERSION%/jl -o jl
 chmod +x jl
 sudo ./jl
 ```

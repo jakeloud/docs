@@ -1,10 +1,14 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import remarkJakeloudVersion from './src/plugins/remark-jakeloud-version.mjs';
 
 // https://astro.build/config
 export default defineConfig({
   outDir: '_site',
+  markdown: {
+    remarkPlugins: [remarkJakeloudVersion],
+  },
   redirects: {
     '/install-all': '/guide/',
     '/install': '/guide/',
