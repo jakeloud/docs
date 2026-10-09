@@ -1,23 +1,24 @@
 ---
 title: Prepare your application
-description: Use Docker or a custom build and start command with Jakeloud's assigned port.
+description: Configure ordered build and start commands and use Jakeloud's assigned port.
 sidebar:
   order: 3
 ---
 
-Each deployment gets a fresh repository checkout. Jakeloud runs the project's **Build and start command** from that release directory using `sh -c`, with an assigned port in `$PORT`.
+Jakeloud runs **Build and start commands** in order from a fresh release checkout. Each step runs in its own `sh -c` shell with `$PORT` set. Preparation steps must finish successfully; the final step must keep running in the foreground.
 
-## Default Docker deployment
+## Default Docker commands
 
-Leave **Use default command** checked to build the repository's root `Dockerfile` and start its image. For a project named `my-project`, the command is:
+Leave **Use default command** checked to build the repository's root `Dockerfile` and run its image. For `my-project`, the two steps are:
 
 ```bash
-docker build -t my-project . && exec docker run -p "$PORT":80 --rm my-project
+docker build -t my-project .
+docker run -p "$PORT":80 --rm my-project
 ```
 
-Your container must serve HTTP on port **80**, listening on `0.0.0.0`. Jakeloud maps the assigned host port to that container port. Docker must already be installed on the server.
+The container must serve HTTP on port **80**, listening on `0.0.0.0`. Install Docker on the server first.
 
-For a static website whose files are in `public/`, a minimal Dockerfile is:
+For a static site with files in `public/`:
 
 ```dockerfile
 FROM nginx:alpine
@@ -25,48 +26,53 @@ COPY public/ /usr/share/nginx/html/
 EXPOSE 80
 ```
 
-For a site with a build step, build the files in an earlier stage and copy the actual output directory into Nginx. This documentation repository builds to `_site/`.
+For a site with a build step, use a build stage and copy its output directory into Nginx.
 
-## Custom build and start commands
+## Custom commands
 
-Uncheck **Use default command** to supply a command. Install any tools it needs on the host, or run them inside a container.
+Uncheck **Use default command**. Edit existing rows, use **Add command** for another step, and drag rows to reorder them. The last row is marked **Liveness check**.
 
-For a Node.js application with a lockfile, a build script, and a `server.js` that reads `process.env.PORT`:
+![Project details showing an active release and three ordered commands ending with the foreground HTTP server.](../../../assets/jl-project-commands.jpg)
 
-```bash
-npm ci && npm run build && exec node server.js
-```
-
-For a Docker application that listens on container port 3000:
+For a Node.js application with a lockfile, build script, and `server.js` that reads `process.env.PORT`, enter these as three separate steps:
 
 ```bash
-docker build -t my-project . && exec docker run --rm -p "$PORT":3000 my-project
+npm ci
+npm run build
+exec node server.js
 ```
 
-Keep the process in the foreground. Avoid `docker run -d`, shell backgrounding with `&`, or a fixed host port: Jakeloud tracks the command's process, and old and new releases may run at the same time. A command that exits is treated as an exited release, even if it exits successfully.
-
-Commands execute under the Jakeloud service account, which the supplied systemd unit sets to root. Only deploy code and commands you trust on that server.
-
-## More runtime examples
-
-For a Go application whose main package is `./cmd/server` and which reads `PORT`, install Go on the host and use:
+For Docker serving container port 3000:
 
 ```bash
-go build -o server ./cmd/server && exec ./server
+docker build -t my-project .
+docker run --rm -p "$PORT":3000 my-project
 ```
 
-For Podman, install it on the host and use a custom command with a Dockerfile serving port 80:
+For a Go application that reads `PORT`:
 
 ```bash
-podman build -t my-project . && exec podman run --rm -p "$PORT":80 my-project
+go build -o server ./cmd/server
+exec ./server
 ```
 
-The dashboard’s **Docker Cache** action still invokes Docker; it does not manage Podman storage.
+For Podman with a Dockerfile serving port 80:
 
-## Workers and persistent data
+```bash
+podman build -t my-project .
+podman run --rm -p "$PORT":80 my-project
+```
 
-Leave **Enable domain and proxy** unchecked for a long-running worker that does not need an HTTP domain. It still needs a foreground command, but it does not need to listen on `$PORT`.
+Install the required runtime and build tools on the host. Commands run as root in non-interactive shells; shell startup files are not read. The service PATH includes `/root/.local/bin` and standard system locations. Use absolute executable paths for tools installed elsewhere.
 
-Store durable data outside the release checkout. For containers, add an appropriate volume mount to the command. Keep secrets out of Git; provide them through server-side configuration, such as a Docker `--env-file` path. Previous releases may overlap with the new one, so account for concurrent workers and database migrations.
+Each step starts in the release directory. A `cd` or `export` in one step does not carry into the next; combine related operations in one row, such as `cd backend && exec ./server`.
 
-Continue to [create a project](/guide/create-application/).
+## Process and data requirements
+
+Keep the final command in the foreground. Avoid `docker run -d` or shell backgrounding with `&`. An exited final process is a release failure, even with exit code zero. For web projects, it must be ready to serve on `$PORT` when the five-second startup check completes; [liveness checks process survival](/guide/releases/#web-projects).
+
+Leave **Enable domain and proxy** unchecked for a worker. It does not need to listen on `$PORT`. Old and new workers can overlap briefly during deployment.
+
+Store persistent data outside the release checkout, for example in Docker volumes. Supply secrets through server-side files such as a Docker `--env-file`, and keep them out of Git. Release directories are pruned as deployments accumulate.
+
+Continue to [deploy a project](/guide/create-application/).

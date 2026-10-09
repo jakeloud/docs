@@ -74,9 +74,7 @@
 }
 
 /* Frame product screenshots consistently in both themes. */
-.sl-markdown-content img[src*="jl-dashboard"],
-.sl-markdown-content img[src*="jl-ssh-key"],
-.sl-markdown-content img[src*="jl-domain-settings"] {
+.sl-markdown-content img[src*="jl-"] {
 	border: 1px solid var(--jl-border);
 	border-radius: 0.625rem;
 }

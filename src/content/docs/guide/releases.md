@@ -1,59 +1,56 @@
 ---
-title: Understand releases
-description: Follow candidate and active processes, inspect logs, and understand promotion and recovery.
+title: Releases and logs
+description: Understand startup checks, traffic switching, process status, and retained release files.
 sidebar:
   order: 7
 ---
 
-A project stores the repository, domain, and command. A release is one checkout and execution of that command. **Full Reboot** starts a new release from the repository's default branch.
+Each deployment creates a fresh shallow clone of the repository's default branch in `/app/<project>/r<number>`. Jakeloud assigns a port and executes the saved command steps. **Full Reboot** creates another release.
 
-## Follow a web deployment
+## Web projects
 
-1. Jakeloud assigns a port and creates the next numbered directory, such as `/app/my-project/r3`.
-2. It clones the repository and starts the command with `$PORT` set to the assigned port.
-3. The release enters **awaiting liveness**. Its process is a candidate; the existing active release can keep serving the domain.
-4. **Confirm live and switch**, or expiration of the timeout, starts promotion if the candidate is still alive.
-5. Jakeloud configures Nginx and the certificate, stops older processes, and marks the new release active.
+1. Preparation commands run in order. A failed step stops deployment.
+2. The final command starts as the candidate process. The previous active release can keep serving traffic.
+3. Jakeloud waits five seconds and checks that the candidate is still alive.
+4. It configures Nginx for all project domains and requests HTTPS certificates.
+5. After successful setup, it stops older releases and marks the new one active.
 
-The timeout begins when the command starts, including build time. It is a delay before promotion, not an HTTP readiness probe. Choose a delay that accommodates your build, or inspect readiness before confirming manually.
+The startup check tests process survival, not HTTP readiness. Put finite build steps before the final command, and make sure the final process starts serving promptly. There is no application health-endpoint probe or manual traffic-switch control.
 
-For a worker without a domain, startup skips the promotion wait and proceeds to cleanup. Be prepared for a short overlap between worker processes.
+Nginx proxies the project's domains to its assigned port, includes WebSocket upgrade headers, and allows request bodies up to 100 MB.
 
-## Read the project details
+If proxy or certificate setup fails, Jakeloud attempts to restore the proxy target to an older active process that is still alive. Nginx restarts during configuration; uninterrupted traffic is not guaranteed. Fix a failed deployment and start another **Full Reboot**.
 
-| Field | Meaning |
+## Workers
+
+A project without domains runs preparation steps and launches its final process, then stops older releases immediately. It skips the five-second web startup check, Nginx, and certificates. Account for a brief overlap between worker processes.
+
+## Read status
+
+Select the project's **…** button to open its details, then **Update status**.
+
+![Project details with the assigned port, release number, process ID, active role, and saved commands.](../../../assets/jl-project-commands.jpg)
+
+| Detail | Meaning |
 | --- | --- |
-| State | The latest release's deployment stage or error. |
-| Port | The assigned port for the latest deployment. |
-| Release | The newest numbered checkout, which may still be a candidate or may have failed. |
-| Process | The tracked process ID, when available. |
-| Role | Active, Candidate, or Inactive according to process liveness and promotion. |
-| Automatic switch | The candidate's promotion deadline. |
+| Status / Logs | Latest deployment stage, process status, and recent output. |
+| Port | Assigned host port, supplied as `$PORT`. |
+| Release | Latest numbered checkout. |
+| Process | Tracked process ID, when running. |
+| Role | **Candidate** is alive but not promoted; **Active** is promoted; **Inactive** has no living tracked process. |
 
-Use **Update status** to refresh these details and the logs. The newest release is not necessarily the one currently serving the domain: a failed candidate can coexist with an older active process.
+The latest release can be a failed candidate while an older active release still serves the domain. The API exposes runtime information for the latest release, not a history of every process.
 
-To check an HTTP candidate from the server, substitute its displayed port and an endpoint your app serves:
+Ports are allocated starting at 38000, skipping configured projects and tracked releases. Unrelated host services are not checked; use the assigned `$PORT` and avoid conflicts.
 
-```bash
-curl --fail http://127.0.0.1:38000/health
-```
+## Logs and storage
 
-The port above is only an example; Jakeloud allocates ports starting at 38000 and skips those recorded for projects or tracked releases. It does not reserve ports used by unrelated host services. Use the assigned port instead of hard-coding one in your command.
-
-## Logs and retained files
-
-Release checkouts use `/app/<project>/r<number>`. Logs sit alongside them as `/app/<project>/r<number>.log` and include clone/build/start output. For example:
+Logs include clone output and every command's stdout and stderr. The dashboard and API return up to the last 64 KiB of the latest release log. To inspect the full file on the server:
 
 ```bash
 sudo tail -n 100 /app/my-project/r3.log
 ```
 
-On creation of a new checkout, Jakeloud retains that directory and the immediately preceding numbered directory, removing older checkout directories. This does not guarantee retention of the last successful release. Log files are separate and are not removed by that checkout pruning; monitor disk usage and archive logs as needed.
+Jakeloud retains the newest checkout directory and the immediately preceding one, removing older directories when a new checkout is created. This is based on release number, not deployment success. Log files are separate and are not pruned with checkout directories; monitor disk usage.
 
-## Failures and shutdown
-
-An unexpected process exit records an error and can send a Telegram notification. If promotion fails during proxy or certificate setup, Jakeloud attempts to restore the previous proxy target when an older active process remains alive. Inspect the error and service logs; recovery itself can fail.
-
-There is no automatic HTTP health monitoring or general rollback control. Fix the code or configuration, push the intended version to the default branch, then start another full reboot.
-
-Jakeloud sends termination signals to tracked process groups when stopping old releases or shutting down. Write applications to handle termination and keep the command in the foreground. Restarting the Jakeloud service redeploys saved projects; it is not a transparent restart of the dashboard alone.
+An unexpected final-process exit records a release error. Shutdown sends termination signals to tracked process groups. Restarting the Jakeloud service stops releases and redeploys saved projects from their repositories.

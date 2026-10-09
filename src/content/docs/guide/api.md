@@ -1,56 +1,67 @@
 ---
 title: HTTP API
-description: Integrate project operations and release confirmation with your own tools.
+description: Read project status, deploy with domain and command arrays, and configure dashboard domains.
 sidebar:
   order: 8
 ---
 
-The dashboard and agent skill send JSON requests to `POST https://<your-instance>/api`. The `op` field selects an operation. Authenticated requests include `email` and `password` in the JSON body; there is no separate API-token setup in this implementation.
+Send JSON to `POST https://<your-instance>/api`. The `op` field selects an operation. Authentication uses `email` and `password` in the request body.
 
-For routine project listing, status, and reboot automation, prefer the [agent skill's client](/guide/agents/). It handles configuration and checks authentication responses.
+## Operations
 
-## Project operations
-
-| `op` | Additional request fields | Behavior |
+| `op` | Additional fields | Result |
 | --- | --- | --- |
-| `getConfOp` | None | Returns configuration, including the `apps` project list. Treat this response as sensitive server configuration. |
-| `getAppOp` | `name` | Returns a project with runtime information and recent release logs. |
-| `createAppOp` | `name`, `repo`, `domain`, `additional.cmd` | Creates a project or starts a new deployment of an existing name. |
-| `confirmAppLivenessOp` | `name`, `release` | Promotes the specified living candidate that is awaiting liveness. |
-| `deleteAppOp` | `name` | Stops releases and removes the project directory and its Nginx site files. |
+| `getConfOp` | None | Configuration with `apps` and `users`. Treat the complete response as sensitive. |
+| `getAppOp` | `name` | A project with latest release status, runtime details, and recent logs. |
+| `createAppOp` | `name`, `repo`, `domain`, `additional.cmd` | Creates a project or deploys a new release for an existing name. |
+| `deleteAppOp` | `name` | Stops releases and removes the project directory and Nginx site files. |
+| `setJakeloudDomainOp` | `domain` | Reconfigures dashboard domains and certificates. Requires email and authentication once users exist. |
+| `registerOp` | No fields beyond `email`, `password` | Registers the first user, or another user when registration is enabled. |
 
-For `createAppOp`, use an empty `domain` for a worker or `app.example.com:5` for a web app with a five-minute promotion delay. The suffix is minutes, not a TCP port. A hostname with no suffix uses five minutes. Accepted delays are whole minutes from 1 to 525600.
+## Deploy a project
 
-An empty `additional.cmd` selects the default Docker command. Omitting it for an existing project preserves its saved command. Include the intended repository and domain when redeploying.
-
-A project-status request body has this shape; placeholders represent credentials supplied privately by your client:
+`domain` is an array of unique hostnames without schemes, paths, or ports. Use `[]` for a worker. `additional.cmd` is an ordered array of shell commands; preparation steps finish first and the final command stays running.
 
 ```json
 {
-  "op": "getAppOp",
+  "op": "createAppOp",
   "email": "<your-email>",
   "password": "<your-password>",
-  "name": "my-project"
+  "name": "my-project",
+  "repo": "git@github.com:your-account/your-repository.git",
+  "domain": ["app.example.com", "www.example.com"],
+  "additional": {
+    "cmd": [
+      "npm ci",
+      "npm run build",
+      "exec node server.js"
+    ]
+  }
 }
 ```
 
-The returned project's `additional` object can include `cmd`, `currentRelease`, `runtime`, `promotionDeadline`, `ps`, and `logs`. Runtime details include `release`, `pid`, `alive`, `active`, and a pending `promotionDeadline` where applicable. Logs are limited to the most recent 64 KiB.
+An empty or omitted command array selects the default Docker steps. Omitted domains mean no domains. When redeploying, send all intended domains and command steps; the operation replaces these settings.
 
-## Instance operations
+Web releases promote automatically after the final process survives five seconds, followed by proxy and certificate setup. Workers skip the web startup wait. See [release behavior](/guide/releases/).
 
-| `op` | Additional request fields | Behavior |
-| --- | --- | --- |
-| `registerOp` | None beyond `email`, `password` | Registers the first user, or a user when `allowRegister` is enabled. |
-| `setJakeloudDomainOp` | `domain` | Reconfigures the dashboard domain and certificate. Requires authentication once users exist. |
-| `setJakeloudAdditionalOp` | `additional` | Replaces the dashboard's additional settings; restricted to its owner. |
-| `clearCacheOp` | None | Runs host-wide `docker system prune -af`. |
+## Read status
 
-When updating `additional`, preserve existing fields you intend to retain; this is replacement, not a partial merge. The current UI does this for Telegram settings. Account access is shared across projects; this API does not provide project-scoped roles.
+Send `getAppOp` with `name`. The returned `additional` object can contain:
 
-## Check results, not only HTTP status
+| Field | Meaning |
+| --- | --- |
+| `cmd` | Saved command array. |
+| `currentRelease` | Latest numbered checkout. |
+| `runtime` | `release`, `pid`, `alive`, and `active` for that release. |
+| `ps` | Process status text. |
+| `logs` | Up to the last 64 KiB of its log. |
 
-Read operations may return `{"message":"login"}` or `{"message":"register"}` instead of the requested object. Unknown operations return `{"message":"noop"}`. Several rejected mutation paths return an empty response, so HTTP 200 alone does not prove that a mutation succeeded.
+The reported instance version is `version` on the `jakeloud` entry in `getConfOp.apps`. It is stored in configuration and can persist across binary upgrades. The [agent client](/guide/agents/#check-versions) checks that value against its own version before project operations.
 
-After requesting a deployment, fetch project status and check the release and runtime state. After requesting confirmation, check that the release became active. Request errors can return a generic `operation failed` message; inspect the server journal for details.
+## Check responses
 
-The contract is defined in the [API handlers](https://github.com/jakeloud/jl/tree/main/api) and may vary across releases.
+Read operations can return `{"message":"login"}` or `{"message":"register"}`. Unknown operations return `{"message":"noop"}`.
+
+Successful mutations return an empty HTTP 200 body. Some rejected mutation paths also return an empty response, so HTTP 200 alone does not prove that the requested change occurred. Fetch configuration or project status to verify the result. A deployment request does not mean the release is running.
+
+See the [upstream handlers](https://github.com/jakeloud/jl/tree/main/api) for the full contract.

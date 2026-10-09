@@ -1,9 +1,11 @@
 ---
 title: Settings and maintenance
-description: Inspect the service, configure notifications, update Jakeloud, and troubleshoot deployments.
+description: Inspect service logs, update Jakeloud, build from source, and troubleshoot deployments.
 sidebar:
   order: 6
 ---
+
+Settings contains the server's **SSH Key** and the dashboard's domain list. See [repository access](/guide/add-ssh-key/) and [dashboard domains](/guide/#set-dashboard-domains).
 
 ## Inspect the service
 
@@ -14,34 +16,29 @@ sudo systemctl status jakeloud
 sudo journalctl -u jakeloud -n 100 --no-pager
 ```
 
-For application output, open a project and use **Update status** under **Status / Logs**, or ask your [agent](/guide/agents/) for its status. The API returns up to the last 64 KiB of the current release's log.
+For application output, select a project's **…** button, then **Update status**, or use the [agent skill](/guide/agents/). Full logs live in `/app/<project>/r<number>.log`.
 
-Jakeloud keeps configuration and project data under `/app`, including `/app/conf.json` and its SSH key pair. Back up this directory along with your applications' external data and server configuration.
+## Backups
 
-## Telegram notifications
-
-The dashboard owner can open **Settings → Telegram Integration**, enter a **Chat ID** and **Bot Token**, and select **Update Telegram Settings**. The backend uses these settings for deployment-start, release-failure, and cache-clearing notifications. Treat the bot token as a secret.
-
-## Clear Docker cache
-
-**Settings → Docker Cache → Clear Cache** runs `docker system prune -af` on the server. This affects unused Docker resources across the host, including stopped containers, unused images, networks, and build cache. It can make subsequent builds slower. Review what else uses Docker on the host before running it.
+Back up `/app`, which contains `conf.json`, the server SSH key pair, release checkouts, and logs. Also back up application volumes, databases, Nginx configuration, and certificates as needed. Keep durable application data outside release directories.
 
 ## Update Jakeloud
 
-Back up `/app` and application data, and download the replacement binary into a separate directory. Stop the service before running the new installer:
+Back up the server's configuration and application data. Download the replacement into a separate directory, then stop the service before running the installer:
 
 ```bash
-sudo systemctl stop jakeloud
+curl -fL https://github.com/jakeloud/jl/releases/download/v%JAKELOUD_VERSION%/jl -o jl
 chmod +x jl
+sudo systemctl stop jakeloud
 sudo ./jl
 sudo systemctl status jakeloud
 ```
 
-Stopping Jakeloud stops its tracked release processes. On startup it redeploys saved projects from their repositories. Plan for this to affect running applications and to fetch newer repository contents.
+Stopping the service stops tracked release processes. Startup redeploys saved projects from their repositories, so allow for application downtime and newer repository contents.
 
 ## Build from source
 
-To build the current source with Docker:
+With Docker installed:
 
 ```bash
 git clone https://github.com/jakeloud/jl.git
@@ -52,22 +49,20 @@ docker cp jlc:/app/jl ./jl
 docker rm jlc
 ```
 
-The build includes the frontend and produces a Linux executable. Build for the target server's architecture. Copy the resulting `jl` to the server, then follow the installation or update steps above.
+The build embeds the dashboard and produces a Linux executable for the builder's architecture. Build for the target server, copy `jl` there, and use the installation or update commands.
 
-## Common deployment problems
+## Troubleshooting
 
-| Problem | Where to look |
+| Problem | Check |
 | --- | --- |
-| Dashboard never becomes available | Check the systemd journal, public DNS, Nginx configuration, and inbound ports 80/443. |
-| Clone fails | Check the repository URL and the instance's SSH key access. |
-| `docker: not found` or runtime missing | Install the tools used by the project's command on the server. |
-| Release exits immediately | Keep its command in the foreground; inspect the release log for build or startup errors. |
-| Domain returns a gateway error | Verify that the application listens on the assigned `$PORT`, or that Docker maps it to the correct container port. |
-| Release is awaiting liveness | Verify readiness, then confirm it in the dashboard or wait for the configured timeout. |
-| TLS setup fails | Check that the hostname resolves to this server and that certificate validation can reach Nginx. |
+| Dashboard unavailable | Systemd journal, DNS, Nginx configuration, and inbound ports 80/443. |
+| Clone fails | Repository URL and the instance's SSH key access. |
+| Command or runtime not found | Host tools and the service PATH; use an absolute executable path if needed. |
+| Release exits | Preparation-step errors and final-process output in the release log. |
+| Domain returns a gateway error | App startup and listening port; Docker must map `$PORT` to its HTTP port. |
+| TLS setup fails | Every configured hostname must resolve to this server and support certificate validation. |
+| Skill reports version mismatch | [Check the installed skill and reported instance versions](/guide/agents/#check-versions). |
 
 ## Users and access
 
-The first registered user owns the dashboard. The current Settings screen has no registration toggle. The backend retains an `allowRegister` setting, but Jakeloud does not provide isolated project permissions: authenticated users can operate on shared projects. Treat accounts as trusted server operators.
-
-These instructions cover [jakeloud/jl](https://github.com/jakeloud/jl). An older installation from `jakeloud/jakeloud` uses a different deployment model; do not assume that replacing its binary or copying its configuration is a supported migration. Back up the old instance and recreate and verify projects on a separate new installation.
+Accounts share project access. The first registered account owns the dashboard. There is no registration toggle in Settings; registration is accepted for the first user or when the dashboard record's `additional.allowRegister` is true. Treat accounts as trusted server operators.

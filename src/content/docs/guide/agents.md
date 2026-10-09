@@ -1,92 +1,104 @@
 ---
 title: Set up your coding agent
-description: Install the Jakeloud agent skill, configure credentials, and inspect or redeploy existing projects.
+description: Install and configure the Jakeloud skill to list projects, read logs, and redeploy.
 sidebar:
   order: 5
 ---
 
-The [Jakeloud agent skill](https://github.com/jakeloud/skill) connects your coding agent to an existing Jakeloud instance. It can list projects, read a project's deployment status and recent logs, and start a full reboot using its saved repository, domain, and command.
-
-It uses Jakeloud's existing HTTP API. You do not need an MCP server or a server-side plugin. Create projects in the dashboard first; the skill's client does not provide project creation or deletion commands.
+The [Jakeloud skill](https://github.com/jakeloud/skill) lets your agent list projects, read status and logs, and redeploy saved projects through the HTTP API. Create projects in the dashboard first.
 
 ## Install the skill
 
-On the computer where your agent runs, install the skill with:
+On the computer where your agent runs:
 
 ```bash
 npx skills add jakeloud/skill
 ```
 
-Follow the installer to choose your agent. To install globally for both Codex and OpenCode:
+For a global installation in Codex and OpenCode:
 
 ```bash
 npx skills add jakeloud/skill -g -a codex -a opencode
 ```
 
-The repository also supports agents that understand the Agent Skills format, including Claude Code and Cursor. For a manual installation, copy the repository's `skills/jakeloud` directory into your agent's skills directory.
-
-Restart a running agent after installation so it discovers the skill.
+The skill also supports Claude Code, Cursor, and other agents using the Agent Skills format. For manual installation, copy the repository's `skills/jakeloud` directory into your agent's skills directory. Restart your agent after installation.
 
 ## Configure your instance
 
-The bundled client requires **Bash 3.2 or newer**, **curl**, and **jq**. The `npx` installation command also requires a working Node.js/npm installation.
+The client needs **Bash 3.2+**, **curl**, and **jq**. Installation with `npx` also needs Node.js/npm.
 
-Run configuration in your own terminal. For a global Codex installation:
+Run configuration in your own terminal. For global Codex:
 
 ```bash
 bash ~/.codex/skills/jakeloud/scripts/jakeloud.sh configure
 ```
 
-For a global OpenCode installation:
+For global OpenCode:
 
 ```bash
 bash ~/.config/opencode/skills/jakeloud/scripts/jakeloud.sh configure
 ```
 
-For another installation location, run `scripts/jakeloud.sh` from the installed `jakeloud` skill directory.
+For another installation, use its `jakeloud/scripts/jakeloud.sh` path.
 
-Enter your instance's base URL, such as `https://jl.example.com`, followed by your Jakeloud email and password. Password input is hidden. Use the same account you use in the dashboard.
+Enter your instance URL, email, and password. Password input is hidden. The client stores credentials in `${XDG_CONFIG_HOME:-$HOME/.config}/jakeloud/config.json`, with directory mode `0700` and file mode `0600`. Keep the file private and configure it where the agent runs.
 
-Configuration is stored in `${XDG_CONFIG_HOME:-$HOME/.config}/jakeloud/config.json`. The client creates the directory with mode `0700` and the file with mode `0600`. This file contains credentials; keep it out of repositories and shared logs. Configure it in the environment where the agent actually runs.
+Remote URLs require HTTPS. Plain HTTP is accepted for `localhost`, `127.0.0.1`, and `[::1]`. For a trusted private HTTP service, run `configure --allow-http`.
 
-Remote instances require HTTPS by default. Plain HTTP is accepted for `localhost`, `127.0.0.1`, and `[::1]`. For a trusted private service that requires HTTP, configuration supports `configure --allow-http`.
+## Check versions
 
-## Verify the connection
+For global Codex:
 
-For Codex's global installation, run:
+```bash
+bash ~/.codex/skills/jakeloud/scripts/jakeloud.sh --version
+bash ~/.codex/skills/jakeloud/scripts/jakeloud.sh check-version --json
+```
+
+The skill currently uses version **0.2.0**, which must exactly match the instance's reported version. This is separate from the downloadable binary's release tag, **v%JAKELOUD_VERSION%**.
+
+Every project command checks the version first. A different or missing version blocks project listing, status, and reboot. The server reports the version stored in its `jakeloud` configuration record, which can remain unchanged across binary upgrades.
+
+To update an installation managed by the Skills CLI:
+
+```bash
+npx skills update jakeloud
+```
+
+Use the skill matching the instance's reported version and API. For a manual installation, replace the installed skill directory with the matching upstream directory. Restart the agent and retry the version check.
+
+## List and inspect projects
 
 ```bash
 bash ~/.codex/skills/jakeloud/scripts/jakeloud.sh projects
 bash ~/.codex/skills/jakeloud/scripts/jakeloud.sh status my-project
 ```
 
-Replace `my-project` with a name returned by the first command. For OpenCode or another agent, use its installed script path. Add `--json` to either command for machine-readable output.
+Use a project name returned by `projects`. Add `--json` for machine-readable output. Use your installed script path for other agents.
 
-## Ask your agent to use Jakeloud
+Example agent requests:
 
-Example requests:
+- “Use Jakeloud to list my projects.”
+- “Check my-project's status and show recent errors.”
+- “Redeploy my-project using its saved settings.”
 
-- “Use the Jakeloud skill to list my projects.”
-- “Check my-project's deployment status and show the recent errors.”
-- “Review my-project's saved deployment settings before rebooting it.”
+## Redeploy
 
-A full reboot deploys from the saved repository again, using the saved domain and command. The skill instructs agents to obtain explicit confirmation before running a reboot. After you confirm, the client invocation is:
+The skill checks status before rebooting. A full reboot clones the saved repository and runs the saved ordered commands, preserving all configured domains. The agent needs your explicit authorization for that reboot.
 
 ```bash
 bash ~/.codex/skills/jakeloud/scripts/jakeloud.sh reboot my-project --yes
 ```
 
-The `--yes` flag is required. A successful reboot request means deployment has started; check `status my-project` again to follow the release. For a web project, use the dashboard's **Confirm live and switch** control once ready, or let the configured timeout promote it. The skill does not expose a liveness-confirmation command.
+`--yes` is required. An accepted request means deployment was requested; inspect `status my-project` again to check progress. Web releases switch traffic automatically after the startup check and proxy setup.
 
 ## Troubleshooting
 
-| Symptom | What to check |
+| Problem | Check |
 | --- | --- |
-| The agent cannot find the skill | Restart the agent and verify the installation location for that agent. |
-| `jq` or `curl` is missing | Install the missing command in the agent's execution environment. |
-| Authentication fails | Log into the dashboard with the same account, then rerun `configure`. |
-| Connection or TLS failure | Check the base URL, DNS, network access, and the instance's certificate. |
-| Project not found | Run `projects` and copy the exact project name. |
-| Reboot requested but app unavailable | Inspect `status`, release logs, and the domain's promotion state. |
-
-See the [skill README](https://github.com/jakeloud/skill#readme) for the client's full usage and configuration details.
+| Skill not found | Installation path and agent restart. |
+| Missing `jq` or `curl` | Install it in the agent's execution environment. |
+| Authentication fails | Dashboard login, then rerun `configure`. |
+| Version mismatch | Installed skill version, reported instance version, and matching API. |
+| Connection fails | Base URL, DNS, network access, and TLS certificate. |
+| Project not found | Exact name from `projects`. |
+| Rebooted app unavailable | Project status, release logs, listening port, and DNS. |
